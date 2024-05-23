@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+     version="1.1"
+     creator="YourAppName">
+    <trk>
+        <name>Sample Track in Bonn</name>
+        <trkseg>
+            <trkpt lat="50.746" lon="7.172">
+                <ele>50</ele>
+                <time>2024-05-22T12:00:00Z</time>
+            </trkpt>
+            <trkpt lat="50.747" lon="7.173">
+                <ele>55</ele>
+                <time>2024-05-22T12:05:00Z</time>
+            </trkpt>
+            <trkpt lat="50.748" lon="7.174">
+                <ele>60</ele>
+                <time>2024-05-22T12:10:00Z</time>
+            </trkpt>
+            <trkpt lat="50.749" lon="7.175">
+                <ele>65</ele>
+                <time>2024-05-22T12:15:00Z</time>
+            </trkpt>
+        </trkseg>
+    </trk>
+</gpx>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="YourAppName">
+  <trk>
+    <trkseg>
+      <trkpt lat="50.746" lon="7.172">
+        <ele>50</ele>
+        <time>2024-05-22T12:00:00.000Z</time>
+      </trkpt>
+      <trkpt lat="50.74599435096615" lon="7.172213840932042">
+        <ele>51</ele>
+        <time>2024-05-22T12:00:34.332Z</time>
+      </trkpt>
+      <trkpt lat="50.746665141872924" lon="7.1725230556382416">
+        <ele>52</ele>
+        <time>2024-05-22T12:02:56.044Z</time>
+      </trkpt>
+      <trkpt lat="50.7466468071588" lon="7.172621724544764">
+        <ele>53</ele>
+        <time>2024-05-22T12:02:59.209Z</time>
+      </trkpt>
+      <trkpt lat="50.7466284722898" lon="7.172720394284707">
+        <ele>54</ele>
+        <time>2024-05-22T12:03:20.001Z</time>
+      </trkpt>
+      <trkpt lat="50.74661013738646" lon="7.172819064209442">
+        <ele>55</ele>
+        <time>2024-05-22T12:03:35.813Z</time>
+      </trkpt>
+      <trkpt lat="50.747668223527775" lon="7.173452775178801">
+        <ele>56</ele>
+        <time>2024-05-22T12:07:51.851Z</time>
+      </trkpt>
+      <trkpt lat="50.747650411018924" lon="7.173535187434648">
+        <ele>57</ele>
+        <time>2024-05-22T12:07:41.280Z</time>
+      </trkpt>
+      <trkpt lat="50.74763259845323" lon="7.1736175999534835">
+        <ele>58</ele>
+        <time>2024-05-22T12:07:57.153Z</time>
+      </trkpt>
+      <trkpt lat="50.747614785845016" lon="7.173700012669044">
+        <ele>59</ele>
+        <time>2024-05-22T12:08:14.185Z</time>
+      </trkpt>
+      <trkpt lat="50.747965629016115" lon="7.174534301302901">
+        <ele>60</ele>
+        <time>2024-05-22T12:10:50.364Z</time>
+      </trkpt>
+      <trkpt lat="50.74817631860195" lon="7.174568147806878">
+        <ele>61</ele>
+        <time>2024-05-22T12:10:56.827Z</time>
+      </trkpt>
+      <trkpt lat="50.74838700179652" lon="7.174601993284121">
+        <ele>62</ele>
+        <time>2024-05-22T12:11:50.837Z</time>
+      </trkpt>
+      <trkpt lat="50.748597683704325" lon="7.174635838554649">
+        <ele>63</ele>
+        <time>2024-05-22T12:12:59.599Z</time>
+      </trkpt>
+      <trkpt lat="50.7488061775735" lon="7.1746671360922685">
+        <ele>64</ele>
+        <time>2024-05-22T12:13:55.222Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>
