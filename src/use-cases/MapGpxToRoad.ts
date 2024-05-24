@@ -14,7 +14,7 @@ export class MapGpxToRoad {
             [box.minLat, box.maxLon]
         );
 
-        const connectPointsOnRoads = roads.snapPointsToRoadPoints(gpx)
+        const connectPointsOnRoads = roads.snapPointsToRoad(gpx)
 
         const pathfinded = roads.pathfindBetweenPoints(connectPointsOnRoads)
 

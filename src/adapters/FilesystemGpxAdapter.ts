@@ -11,7 +11,6 @@ export class FilesystemGpxAdapter implements GpxRepo {
         private inputFilepath: string,
         private outputFilepath: string
     ) {
-        // Check if the input file exists
         if (!fs.existsSync(inputFilepath)) {
             throw new Error(`Input file not found: ${inputFilepath}`);
         }
@@ -38,14 +37,12 @@ export class FilesystemGpxAdapter implements GpxRepo {
                     reject(err);
                 }
 
-                // Parse the XML
                 xml2js.parseString(data, (err, result) => {
                     if (err) {
                         console.error("Error parsing XML:", err);
                         reject(err);
                     }
 
-                    // Extract track segments and points
                     const trackSegments = this.parseTrackSegments(result);
                     resolve(trackSegments);
                 });
@@ -55,15 +52,9 @@ export class FilesystemGpxAdapter implements GpxRepo {
 
     async writeGpxFile(gpx: TrackSegment[]): Promise<void> {
         return new Promise((resolve, reject) => {
-            // Create the root of the GPX file
             const root = xmlbuilder.create('gpx', { version: '1.0', encoding: 'UTF-8' })
-                .att('xmlns', 'http://www.topografix.com/GPX/1/1')
-                .att('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
-                .att('xsi:schemaLocation', 'http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd')
                 .att('version', '1.1')
-                .att('creator', 'YourAppName'); // You can customize the 'creator' attribute
 
-            // Add a track element
             const trk = root.ele('trk');
 
             for (const segment of gpx) {
@@ -85,10 +76,8 @@ export class FilesystemGpxAdapter implements GpxRepo {
                 }
             }
 
-            // Convert the XML object to a string
             const xmlString = root.end({ pretty: true });
 
-            // Write the string to a file
             fs.writeFile(this.outputFilepath, xmlString, (err) => {
                 if (err) {
                     console.error("Error writing to file:", err);

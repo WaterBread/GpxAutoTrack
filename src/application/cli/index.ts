@@ -7,7 +7,6 @@ import { FilesystemGpxAdapter } from '../../adapters/FilesystemGpxAdapter';
 import { ReadGpx } from '../../use-cases/ReadGpx';
 import { WriteGpx } from '../../use-cases/WriteGpx';
 
-// Configure yargs to parse the command line arguments
 const argv = yargs(hideBin(process.argv))
     .option('input', {
         alias: 'i',

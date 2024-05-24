@@ -5,28 +5,6 @@ export class TrackSegment {
         public points: TrackPoint[]
     ) { }
 
-    public smooth(): TrackSegment {
-        const smoothedPoints = this.points.map((point, index, points) => {
-            // Skip the first and last points
-            if (index === 0 || index === points.length - 1) {
-                return point;
-            }
-
-            // Smooth the point by averaging it with its neighbors
-            return new TrackPoint(
-                (points[index - 1].lat + point.lat + points[index + 1].lat) / 3,
-                (points[index - 1].lon + point.lon + points[index + 1].lon) / 3,
-                point.ele,
-                point.time
-            );
-        });
-
-        return new TrackSegment(smoothedPoints);
-    }
-
-    /**
-     * Calculate the bounding box of the track segment
-     */
     public getBoundingBox = () => {
         const lats = this.points.map(point => point.lat);
         const lons = this.points.map(point => point.lon);
@@ -96,19 +74,5 @@ export class TrackSegment {
         }
 
         return closestPoint;
-    }
-
-    public mapTrackSegmentToTrackSegment(mappingSegment: TrackSegment): TrackSegment {
-        const mappedPoints = this.points.map((point) => {
-            const closestPoint = this.closestPointToTrack(point, mappingSegment);
-
-            if (!closestPoint) {
-                throw new Error("Could not find a closest point");
-            }
-
-            return closestPoint;
-        });
-
-        return new TrackSegment(mappedPoints);
     }
 }
