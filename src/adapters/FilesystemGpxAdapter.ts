@@ -29,7 +29,7 @@ export class FilesystemGpxAdapter implements GpxRepo {
         return segments;
     }
 
-    public async readGpxFile(): Promise<TrackSegment[]> {
+    public async readGpx(): Promise<TrackSegment[]> {
         return new Promise((resolve, reject) => {
             fs.readFile(this.inputFilepath, (err, data) => {
                 if (err) {
@@ -50,7 +50,7 @@ export class FilesystemGpxAdapter implements GpxRepo {
         });
     }
 
-    async writeGpxFile(gpx: TrackSegment[]): Promise<void> {
+    async writeGpx(gpx: TrackSegment[]): Promise<void> {
         return new Promise((resolve, reject) => {
             const root = xmlbuilder.create('gpx', { version: '1.0', encoding: 'UTF-8' })
                 .att('version', '1.1')

@@ -7,6 +7,6 @@ export class ReadGpx {
     ) { }
 
     public async execute(): Promise<TrackSegment[]> {
-        return await this.gpxRepo.readGpxFile();
+        return await this.gpxRepo.readGpx();
     }
 }

@@ -34,17 +34,17 @@ export class RoadMap {
             const numExtraPoints = Math.floor(distance / this.maxDistance);
             let lastPoint = pointA;
 
-            Array.from({ length: numExtraPoints }, (_, j) => {
-                const t = (j + 1) / (numExtraPoints + 1);
+            for (let x = 0; x < numExtraPoints; x++) {
+                const step = (x + 1) / (numExtraPoints + 1);
                 const interpolatedPoint = new TrackPoint(
-                    pointA.lat + (pointB.lat - pointA.lat) * t,
-                    pointA.lon + (pointB.lon - pointA.lon) * t
+                    pointA.lat + (pointB.lat - pointA.lat) * step,
+                    pointA.lon + (pointB.lon - pointA.lon) * step
                 );
 
                 this.graph.setNode(this.pointId(interpolatedPoint), interpolatedPoint);
                 this.graph.setEdge(this.pointId(lastPoint), this.pointId(interpolatedPoint), lastPoint.distanceTo(interpolatedPoint));
                 lastPoint = interpolatedPoint;
-            });
+            }
 
             this.graph.setEdge(this.pointId(lastPoint), this.pointId(pointB), lastPoint.distanceTo(pointB));
         } else {
@@ -66,11 +66,11 @@ export class RoadMap {
 
             let currentId = paths[this.pointId(endPoint)].predecessor;
 
-            const currentPath = [];
+            const currentPath: TrackPoint[] = [];
             while (currentId && currentId !== startId) {
                 const currentNode = this.graph.node(currentId);
                 if (currentNode) {
-                    currentPath.push(currentNode as TrackPoint);
+                    currentPath.push(currentNode);
                 }
                 currentId = paths[currentId].predecessor;
             }
@@ -95,22 +95,5 @@ export class RoadMap {
             }
             return closestPoint;
         }, undefined)?.point;
-    }
-
-    public traverseTo(point: TrackPoint) {
-        const start = this.pointId(point);
-        return GraphLib.alg.dijkstra(this.graph, start, (e) => this.graph.edge(e));
-    }
-
-    public getPath(paths: { [node: string]: GraphLib.Path }, to: TrackPoint): string[] {
-        let currentNode = this.pointId(to);
-        const path = [];
-
-        while (currentNode) {
-            path.unshift(currentNode);
-            currentNode = paths[currentNode]?.predecessor;
-        }
-
-        return path;
     }
 }

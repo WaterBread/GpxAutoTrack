@@ -18,6 +18,6 @@ export interface GPXFile {
 }
 
 export interface GpxRepo {
-    readGpxFile(): Promise<TrackSegment[]> | TrackSegment[];
-    writeGpxFile(gpx: TrackSegment[]): Promise<void> | void;
+    readGpx(): Promise<TrackSegment[]> | TrackSegment[];
+    writeGpx(gpx: TrackSegment[]): Promise<void> | void;
 }

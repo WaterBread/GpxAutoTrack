@@ -1,0 +1,7 @@
+Fix the time interpolation
+Adding reading GPX from URL
+HTTP server frontend
+Adding GPX domain logic to handle parsing raw strings
+Fix the weird logic where it skips over corners
+Mapper logic to transform the domain objects to DTO?
+Add testing for the layers

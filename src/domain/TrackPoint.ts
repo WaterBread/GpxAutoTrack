@@ -15,16 +15,4 @@ export class TrackPoint {
             { units: 'kilometers' }
         );
     }
-
-    closestPointOnSegment(pointA: TrackPoint, pointB: TrackPoint): TrackPoint {
-        const line = turf.lineString([
-            [pointA.lon, pointA.lat],
-            [pointB.lon, pointB.lat]
-        ]);
-
-        const point = turf.point([this.lon, this.lat]);
-        const snapped = turf.nearestPointOnLine(line, point);
-
-        return new TrackPoint(snapped.geometry.coordinates[1], snapped.geometry.coordinates[0]);
-    }
 }

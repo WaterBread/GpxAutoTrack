@@ -36,22 +36,23 @@ const argv = yargs(hideBin(process.argv))
 async function main() {
     const args = await argv
 
+    // Adapters
+    const roadData = new OverpassRoadData()
     const gpxAdapter = new FilesystemGpxAdapter(args.input, args.output)
+
+    // Use cases
+    const interpolate = new InterpolateGpx()
 
     const readGpx = new ReadGpx(gpxAdapter);
     const writeGpx = new WriteGpx(gpxAdapter);
 
+    const map = new MapGpxToRoad(roadData)
+
     const segments = await readGpx.execute()
 
-    const interpolate = new InterpolateGpx()
     const interpolated = await Promise.all(segments.map(segment => {
         return interpolate.execute(segment, args.interpolate)
     }));
-
-    const roadData = new OverpassRoadData()
-    const map = new MapGpxToRoad(roadData)
-
-    console.log("Interpolated segments: ", interpolated)
 
     const mapped = await Promise.all(interpolated.map(segment => {
         return map.execute(segment)

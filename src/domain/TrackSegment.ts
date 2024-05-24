@@ -58,21 +58,4 @@ export class TrackSegment {
 
         return new TrackSegment(interpolatedPoints);
     }
-
-    closestPointToTrack(point: TrackPoint, mappingSegments: TrackSegment) {
-        let minDistance = Infinity;
-        let closestPoint: TrackPoint | undefined;
-
-        for (const mappingPoint of mappingSegments.points) {
-            const distance = point.distanceTo(mappingPoint);
-
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestPoint = mappingPoint;
-            }
-
-        }
-
-        return closestPoint;
-    }
 }

@@ -7,6 +7,6 @@ export class WriteGpx {
     ) { }
 
     public async execute(gpx: TrackSegment[]): Promise<void> {
-        return await this.gpxRepo.writeGpxFile(gpx);
+        return await this.gpxRepo.writeGpx(gpx);
     }
 }
