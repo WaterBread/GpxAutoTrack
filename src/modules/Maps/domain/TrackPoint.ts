@@ -15,4 +15,8 @@ export class TrackPoint {
             { units: 'kilometers' }
         );
     }
+
+    equals(point: TrackPoint): boolean {
+        return this.lat === point.lat && this.lon === point.lon;
+    }
 }

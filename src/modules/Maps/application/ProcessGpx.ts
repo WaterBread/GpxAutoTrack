@@ -1,8 +1,6 @@
-import { GpxRepo } from "../domain/ports/GpxRepo";
-import { RoadRepo } from "../domain/ports/RoadRepo";
-
-import { MapGpxToRoad } from '../use-cases/MapGpxToRoad'
-import { InterpolateGpx } from '../use-cases/InterpolateGpx'
+import { GpxRepo } from '../domain/ports/GpxRepo';
+import { RoadRepo } from '../domain/ports/RoadRepo';
+import { MapGpxToRoad } from '../use-cases/MapGpxToRoad';
 
 interface Args {
     numberOfInterpolationPoints: number;
@@ -17,15 +15,11 @@ export class ProcessGpx {
     public async execute(args: Args): Promise<void> {
         const gpx = await this.gpxRepo.readGpx();
 
-        const interpolateGpx = new InterpolateGpx();
         const mapGpxToRoad = new MapGpxToRoad(this.roadData);
 
         const result = await Promise.all(gpx.map(async segment => {
-            // Interpolate
-            const interpolatedGpx = await interpolateGpx.execute(segment, args.numberOfInterpolationPoints);
-
             // Map interpolated to road
-            const mappedGpx = await mapGpxToRoad.execute(interpolatedGpx);
+            const mappedGpx = await mapGpxToRoad.execute(segment);
 
             // Return the result
             return mappedGpx;

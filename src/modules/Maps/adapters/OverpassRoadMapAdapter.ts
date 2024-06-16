@@ -1,7 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { RoadMap } from "../domain/RoadMap";
 import { TrackPoint } from "../domain/TrackPoint";
-import { TrackSegment } from "../domain/TrackSegment";
 import { RoadRepo } from "../domain/ports/RoadRepo";
 
 interface OverpassElement {
@@ -51,32 +50,37 @@ export class OverpassRoadData implements RoadRepo {
         }
     }
 
-    private constructRoadMap(elements: OverpassElement[]): TrackSegment[] {
+    private constructRoadMap(elements: OverpassElement[]): Map<TrackPoint, TrackPoint[]> {
+        // Map to store nodes by ID for quick lookup
         const nodeMap = new Map<number, TrackPoint>();
-        const roads: TrackSegment[] = [];
 
+        // Populate nodeMap with TrackPoint objects
         elements.forEach(element => {
             if (element.type === 'node') {
                 nodeMap.set(element.id, new TrackPoint(element.lat, element.lon));
             }
         });
 
-        elements.forEach(element => {
-            if (element.type === 'way') {
-                const roadPoints: TrackPoint[] = element.nodes.reduce((acc: TrackPoint[], nodeId: number) => {
-                    const trackPoint = nodeMap.get(nodeId);
-                    if (trackPoint) {
-                        acc.push(trackPoint);
-                    }
-                    return acc;
-                }, []);
+        // Adjacency list to store the connectivity between TrackPoints
+        const adjacencyList: Map<TrackPoint, TrackPoint[]> = new Map<TrackPoint, TrackPoint[]>();
 
-                if (roadPoints.length > 0) {
-                    roads.push(new TrackSegment(roadPoints));
+        // Process ways to populate the adjacency list
+        elements.forEach(element => {
+            if (element.type === 'way' && element.nodes) {
+                for (let i = 0; i < element.nodes.length - 1; i++) {
+                    const startNode = nodeMap.get(element.nodes[i]);
+                    const endNode = nodeMap.get(element.nodes[i + 1]);
+
+                    if (startNode && endNode) {
+                        if (!adjacencyList.has(startNode)) {
+                            adjacencyList.set(startNode, []);
+                        }
+                        adjacencyList.get(startNode)!.push(endNode);
+                    }
                 }
             }
         });
 
-        return roads;
+        return adjacencyList;
     }
 }

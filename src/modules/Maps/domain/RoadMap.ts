@@ -1,12 +1,13 @@
 import { TrackPoint } from "./TrackPoint";
 import { TrackSegment } from "./TrackSegment";
-import GraphLib from 'graphlib';
+
+import GraphLib, { Edge } from 'graphlib';
 
 export class RoadMap {
     private graph = new GraphLib.Graph({ directed: false });
-    private maxDistance = 0.1;
 
-    constructor(public roads: TrackSegment[]) {
+    // Adjacency list of TrackPoints representing all the connections
+    constructor(public points: Map<TrackPoint, TrackPoint[]>) {
         this.buildGraph();
     }
 
@@ -15,41 +16,18 @@ export class RoadMap {
     }
 
     private buildGraph(): void {
-        this.roads.forEach(road => {
-            road.points.forEach((point, i, points) => {
-                if (i < points.length - 1) {
-                    this.graph.setNode(this.pointId(point), point);
-                    this.addEdge(point, points[i + 1]);
-                }
-            });
+        this.points.forEach((connections, point) => {
+            this.graph.setNode(this.pointId(point), point);
 
-            // Add the last node to the graph
-            this.graph.setNode(this.pointId(road.points[road.points.length - 1]), road.points[road.points.length - 1]);
+            connections.forEach(connection => {
+                this.addEdge(point, connection);
+            });
         });
     }
 
     private addEdge(pointA: TrackPoint, pointB: TrackPoint): void {
-        const distance = pointA.distanceTo(pointB);
-        if (distance > this.maxDistance) {
-            const numExtraPoints = Math.floor(distance / this.maxDistance);
-            let lastPoint = pointA;
-
-            for (let x = 0; x < numExtraPoints; x++) {
-                const step = (x + 1) / (numExtraPoints + 1);
-                const interpolatedPoint = new TrackPoint(
-                    pointA.lat + (pointB.lat - pointA.lat) * step,
-                    pointA.lon + (pointB.lon - pointA.lon) * step
-                );
-
-                this.graph.setNode(this.pointId(interpolatedPoint), interpolatedPoint);
-                this.graph.setEdge(this.pointId(lastPoint), this.pointId(interpolatedPoint), lastPoint.distanceTo(interpolatedPoint));
-                lastPoint = interpolatedPoint;
-            }
-
-            this.graph.setEdge(this.pointId(lastPoint), this.pointId(pointB), lastPoint.distanceTo(pointB));
-        } else {
-            this.graph.setEdge(this.pointId(pointA), this.pointId(pointB), distance);
-        }
+        this.graph.setEdge(this.pointId(pointA), this.pointId(pointB),
+            { distance: pointA.distanceTo(pointB) });
     }
 
     public pathfindBetweenPoints(gpx: TrackSegment): TrackSegment {
@@ -62,24 +40,110 @@ export class RoadMap {
             fullPath.push(startPoint);
 
             const startId = this.pointId(startPoint);
-            const paths = GraphLib.alg.dijkstra(this.graph, startId, (e) => this.graph.edge(e));
+            const endId = this.pointId(endPoint);
 
-            let currentId = paths[this.pointId(endPoint)].predecessor;
+            const paths = GraphLib.alg.dijkstra(this.graph, startId, (e) => {
+                return this.graph.edge(e).distance;
+            }, (edge) => {
+                return this.graph.nodeEdges(edge) as Edge[]
+            });
 
-            const currentPath: TrackPoint[] = [];
-            while (currentId && currentId !== startId) {
-                const currentNode = this.graph.node(currentId);
-                if (currentNode) {
-                    currentPath.push(currentNode);
+            console.log(`Pathfinding between ${startId} and ${endId}`)
+
+            if (paths[endId].distance === Infinity) {
+                // If there is no direct path, find the nearest reachable node to endPoint
+
+                console.log('No direct path found, trying to find the closest reachable node', endPoint)
+                const closestReachable = this.findClosestReachableNode(paths, endPoint);
+                if (closestReachable) {
+                    const interpretedSegment = this.tracePath(paths, closestReachable);
+
+                    if (startPoint.time && endPoint.time) {
+                        console.log('Correcting time for the segment')
+                        const correctedSegment = this.correctTime(interpretedSegment, startPoint.time, endPoint.time);
+                        fullPath.push(...correctedSegment);
+                    } else {
+                        fullPath.push(...interpretedSegment);
+                    }
                 }
-                currentId = paths[currentId].predecessor;
-            }
+            } else {
+                // If there is a path, trace it back from the endpoint
+                const interpretedSegment = this.tracePath(paths, endId);
 
-            fullPath.push(...currentPath.reverse());
-            fullPath.push(endPoint);
+                if (startPoint.time && endPoint.time) {
+                    console.log('Correcting time for the segment')
+
+                    const correctedSegment = this.correctTime(interpretedSegment, startPoint.time, endPoint.time);
+                    fullPath.push(...correctedSegment);
+                } else {
+                    fullPath.push(...interpretedSegment);
+                }
+            }
         }
 
         return new TrackSegment(fullPath);
+    }
+
+    private correctTime(segment: TrackPoint[], startTime: Date, endTime: Date): TrackPoint[] {
+        const timeDiff = endTime.getTime() - startTime.getTime();
+        const timeStep = timeDiff / segment.length;
+
+        let currentTime = startTime.getTime();
+
+        return segment.map(point => {
+            const newPoint = new TrackPoint(point.lat, point.lon, point.ele, new Date(currentTime));
+            currentTime += timeStep;
+            return newPoint;
+        });
+    }
+
+    private findClosestReachableNode(paths: { [node: string]: GraphLib.Path }, targetPoint: TrackPoint): string | null {
+        let minDistance = Infinity;
+        let closestNode = null;
+
+        for (const node in paths) {
+            if (paths[node].distance !== Infinity) {
+                const nodePoint: TrackPoint = this.graph.node(node);
+
+                if (!nodePoint) {
+                    continue;
+                }
+
+                const distance = this.calculateDistance(nodePoint, targetPoint);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestNode = node;
+                }
+            }
+        }
+
+        return closestNode;
+    }
+
+    private calculateDistance(p1: TrackPoint, p2: TrackPoint): number {
+        return p1.distanceTo(p2);
+    }
+
+    private tracePath(paths: { [node: string]: GraphLib.Path }, nodeId: string) {
+        const currentPath: TrackPoint[] = [];
+
+        let currentId = nodeId;
+        while (currentId) {
+            const currentPoint: TrackPoint = this.graph.node(currentId);
+
+            if (!currentPoint) {
+                break;
+            }
+
+            currentPath.push(currentPoint);
+            currentId = paths[currentId].predecessor;
+        }
+
+        // Reverse the path to correct the order from start to end
+        currentPath.reverse();
+
+        // Append the current path to the fullPath
+        return currentPath;
     }
 
     public snapPointsToRoad(gpx: TrackSegment): TrackSegment {
@@ -87,13 +151,28 @@ export class RoadMap {
     }
 
     private closestPointToRoad(point: TrackPoint): TrackPoint | undefined {
-        return this.graph.nodes().reduce<{ point: TrackPoint, distance: number } | undefined>((closestPoint, node) => {
-            const graphPoint: TrackPoint = this.graph.node(node);
-            const distance = point.distanceTo(graphPoint);
-            if (!closestPoint || distance < closestPoint.distance) {
-                return { point: graphPoint, distance };
+        const nodes = this.graph.nodes();
+
+        let minDistance = Infinity;
+
+        let closestPoint: TrackPoint | undefined = undefined;
+
+        for (const nodeId of nodes) {
+            const node = this.graph.node(nodeId);
+
+            if (node) {
+                const distance = point.distanceTo(node);
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestPoint = node;
+                }
             }
-            return closestPoint;
-        }, undefined)?.point;
+        }
+
+        point.lat = closestPoint ? closestPoint.lat : point.lat;
+        point.lon = closestPoint ? closestPoint.lon : point.lon;
+
+        return point;
     }
 }
