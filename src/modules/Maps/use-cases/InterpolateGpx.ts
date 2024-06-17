@@ -5,6 +5,10 @@ export class InterpolateGpx {
     ) { }
 
     public async execute(gpx: TrackSegment, numberOfPoints: number): Promise<TrackSegment> {
+        if (gpx.points.length < 2) {
+            return gpx;
+        }
+
         const snappedGpx = gpx.interpolate(numberOfPoints);
         return snappedGpx;
     }
