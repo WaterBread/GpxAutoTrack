@@ -21,7 +21,7 @@ const createOverpassQuery = (upperLeft: [number, number], bottomRight: [number, 
 
     return `[out:json][timeout:25];
         (
-            way(around:500,${bottomLat},${leftLon},${upperLat},${rightLon})[~"^highway$"~"."];
+            way(around:4000,${bottomLat},${leftLon},${upperLat},${rightLon})[~"^highway$"~"."];
 
           >;
         );
